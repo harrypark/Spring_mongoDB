@@ -92,7 +92,11 @@
     
     <script type="text/javascript">
 		var chart ;
+		var chartRange;
 		$(function(){
+ 			 $('#startDt').val(moment().subtract(6, 'days').format('YYYYMMDD'));
+ 			 $('#endDt').val(moment().format('YYYYMMDD'));
+			
 			$('#example').dataTable({
 			});
 
@@ -154,7 +158,10 @@
 			  $('#startDt').val(start.format('YYYYMMDD'));
 			  $('#endDt').val(end.format('YYYYMMDD'));
 			});
-			
+			$('#dateRange').on('show.daterangepicker', function(ev, picker) {
+				  console.log(picker.startDate.format('YYYY-MM-DD'));
+				  console.log(picker.endDate.format('YYYY-MM-DD'));
+				});
 
 
 
@@ -185,7 +192,7 @@
 					}
 					options.chart.renderTo = 'container_it10';
 					options.title.text='Intent Top10';
-					options.subtitle.text = $('#startDt').val() +' ~ '+ $('#endDt').val();
+					options.subtitle.text = $('#dateRange').val();
 					options.xAxis.categories = categories;
 					options.series[0].data = data;
 					chart = new Highcharts.Chart(options);
@@ -211,7 +218,7 @@
 					}
 					options.chart.renderTo = 'container_et10';
 					options.title.text='Entity_value Top10';
-					options.subtitle.text = $('#startDt').val() +' ~ '+ $('#endDt').val();
+					options.subtitle.text = $('#dateRange').val();
 					options.xAxis.categories = categories;
 					options.series[0].data = data;
 					chart = new Highcharts.Chart(options);
