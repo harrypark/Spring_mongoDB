@@ -1,0 +1,170 @@
+HomeDaoImpl
+
+getIntentTop10 : skill,기간  intent top10
+-----------------------------------------------------------------------------
+db.getCollection("sample").aggregate(
+    [
+        {
+            "$match" : {
+                "skill_uuid" : "c9d7e581-723f-11ea-bc9b-022e2bbe7be0" ,
+                "date_day" : {
+                     "$gte": '20200420', "$lte" : '20200425'   
+                }
+            }
+        },
+          {
+            "$unwind" : "$output.intents"
+        },
+        { 
+            "$group" : { 
+                 "_id" : { 
+                    "intent" : "$output.intents.intent"
+                     
+                }, 
+                "confidenceAvg" : { 
+                    "$avg" : "$output.intents.confidence"
+                },
+                "confidenceSum" : { 
+                    "$sum" : "$output.intents.confidence"
+                },
+                "intentCount" : { 
+                    "$sum" : 1
+                }
+            }
+        }, 
+        { 
+            "$project" : { 
+                "intent" : "$_id.intent",
+                "confidenceAvg" : "$confidenceAvg",
+                "confidenceSum" : "$confidenceSum",
+                "intentCount" : "$intentCount",  
+                "_id" : 0
+            }
+        },
+        {
+            "$sort" : {
+                "intentCount" : -1
+            }
+        },
+        {
+            "$limit" : 10
+        }
+    ], 
+
+    { 
+        "allowDiskUse" : true
+    }
+);
+
+
+
+
+
+getEntityTop10
+--------------------------------------------------------------------------------
+db.getCollection("sample").aggregate(						
+    [						
+        {						
+            "$match" : {						
+                "skill_uuid" : "c9d7e581-723f-11ea-bc9b-022e2bbe7be0" ,						
+                "date_day" : {						
+                     "$gte": '20200413', "$lte" : '20200420'   						
+                }						
+            }						
+        },						
+          {						
+            "$unwind" : "$output.entities"						
+        },						
+        { 						
+            "$group" : { 						
+                 "_id" : { 						
+   /*                 "entity" : "$output.entities.entity",	 */					
+                    "value" : "$output.entities.value"						
+                    						
+                }, 						
+                "confidenceAvg" : { 						
+                    "$avg" : "$output.entities.confidence"						
+                },						
+                "confidenceSum" : { 						
+                    "$sum" : "$output.entities.confidence"						
+                },						
+                "entityCount" : { 						
+                    "$sum" : 1						
+                }						
+            }						
+        }, 						
+        { 						
+            "$project" : { 						
+                "value" : "$_id.value",						
+                "confidenceAvg" : "$confidenceAvg",						
+                "confidenceSum" : "$confidenceSum",						
+                "entityCount" : "$entityCount",  						
+                "_id" : 0						
+            }						
+        },						
+        {						
+            "$sort" : {						
+                "entityCount" : -1						
+            }						
+        },						
+        {						
+            "$limit" : 10						
+        }						
+    ], 						
+						
+    { 						
+        "allowDiskUse" : true						
+    }						
+);						
+
+getTodayIntentConfidenceAvg
+getLast7dayIntentConfidenceAvg
+------------------------------------------------------------------------------------------------
+db.getCollection("sample").aggregate(						
+    [						
+        {						
+            "$match" : {						
+                "skill_uuid" : "c9d7e581-723f-11ea-bc9b-022e2bbe7be0" ,						
+                "date_day" : {	
+                    "$eq": '20200422'					
+                }						
+            }						
+        },						
+          {						
+            "$unwind" : "$output.intents"						
+        },						
+        { 						
+            "$group" : { 						
+                 "_id" : { 						
+   /*                 "entity" : "$output.entities.entity",	 */					
+                    "skill_uuid" : "$skill_uuid"						
+                    						
+                }, 						
+                "confidenceAvg" : { 						
+                    "$avg" : "$output.intents.confidence"						
+                },						
+                "confidenceSum" : { 						
+                    "$sum" : "$output.intents.confidence"						
+                },						
+                "intentCount" : { 						
+                    "$sum" : 1						
+                }						
+            }						
+        }, 						
+        { 						
+            "$project" : { 						
+                "skill_uuid" : "$_id.skill_uuid",						
+                "confidenceAvg" : "$confidenceAvg",						
+                "confidenceSum" : "$confidenceSum",						
+                "intentCount" : "$entityCount",  						
+                "_id" : 0						
+            }						
+        }						
+        						
+    ], 						
+						
+    { 						
+        "allowDiskUse" : true						
+    }						
+);						
+
