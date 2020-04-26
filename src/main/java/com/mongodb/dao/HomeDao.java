@@ -18,4 +18,9 @@ public interface HomeDao {
 
 	List<Intent> getIntentDataList(SearchParam param);
 
+	List<Intent> getIntentTop10DailyCount(SearchParam param);
+
+	List<Entity> getEntityTop10DailyCount(SearchParam param);
+
+
 }

@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class Entity {
 	
+	private String dateDay;
 	private String skillUuid;
 	private String entity;
 	private String value;

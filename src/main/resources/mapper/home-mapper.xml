@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mongodb.mapper.HomeMapper">
+
+	<select id="getLogCount" resultType="int">
+	select count(*) from chatbot_aggregate
+	</select>
+	
+	<select id="getUsageDailyList" parameterType="com.mongodb.domain.SearchParam" resultType="com.mongodb.domain.Usage">
+	select date_day, sum(`usage`) as `usage`, sum(api_call) as api_call from chatbot_aggregate
+	where skill_uuid=#{skillUuid} and date_day BETWEEN #{startDt} and #{endDt}
+	group by date_day
+	<!-- 
+	SELECT a.day_str1 as date_day ,a.day_str2,ifnull(b.usage,0) as `usage`, ifnull(b.api_call,0) as api_call FROM
+	(
+	SELECT DT.YYYYMMDD as day_str1,REPLACE(DT.YYYYMMDD,'-','') as day_str2
+	  FROM (SELECT STR_TO_DATE(#{endDt}, '%Y%m%d') - INTERVAL(A.A + (10 * B.A) + (100 * C.A)) DAY AS YYYYMMDD
+	             , A.A AS AA
+	             , B.A AS BA
+	             , C.A AS CA
+	          FROM (SELECT 0 AS A UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS A
+	         CROSS JOIN (SELECT 0 AS A UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS B
+	         CROSS JOIN (SELECT 0 AS A UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS C
+	        ) DT
+	 WHERE DT.YYYYMMDD BETWEEN #{startDt} AND #{endDt}
+	 ) a LEFT OUTER JOIN 
+	 (
+	select date_day, sum(`usage`) as `usage`, sum(api_call) as api_call from chatbot_aggregate
+	where skill_uuid=#{skillUuid} and date_day BETWEEN #{startDt} and #{endDt}
+	group by date_day
+	 ) b on a.day_str2=b.date_day
+	 order by a.day_str1
+	 -->
+	</select>
+	
+	<select id="getUsageDateHourlyList" parameterType="com.mongodb.domain.SearchParam" resultType="com.mongodb.domain.Usage">
+	select CONCAT(date_day,date_day_hour,'00') date_day, `usage` as `usage`, api_call as api_call from chatbot_aggregate
+	where skill_uuid=#{skillUuid} and date_day BETWEEN #{startDt} and #{endDt}
+	</select>
+	
+</mapper>

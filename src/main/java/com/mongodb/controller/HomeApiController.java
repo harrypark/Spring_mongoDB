@@ -1,5 +1,6 @@
 package com.mongodb.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -52,6 +53,73 @@ public class HomeApiController {
 		log.debug(param.toString());
 		
 		return homeService.getIntentDataList(param);
+	}
+	
+	
+	@GetMapping(value = "/intent/daily")
+	public HashMap<String,Object> getIntentDailyList(SearchParam param) {
+		log.debug(param.toString());
+		/*
+		 * 시작일과 종료일을 반복문으로 chart에 표시하기위한 일자 배열을 생성하여 param에 추가
+		 */
+		homeService.getStartEndDateList(param);
+		
+		//chart 표시용 데이터
+		HashMap<String,Object> hm = new HashMap<String,Object>(); 
+		List<HashMap<String,Object>> list = homeService.getIntentDailyList(param);
+		
+		hm.put("categories", param.getCategories());
+		hm.put("list", list);
+		return hm;
+	}
+	
+	@GetMapping(value = "/entity/daily")
+	public HashMap<String,Object> getEntityDailyList(SearchParam param) {
+		log.debug(param.toString());
+		
+		int logCnt = homeService.getLogCount();
+		log.debug("Test Log count:{}",logCnt);
+		
+		/*
+		 * 시작일과 종료일을 반복문으로 chart에 표시하기위한 일자 배열을 생성하여 param에 추가
+		 */
+		homeService.getStartEndDateList(param);
+		
+		//chart 표시용 데이터
+		HashMap<String,Object> hm = new HashMap<String,Object>(); 
+		List<HashMap<String,Object>> list = homeService.getEntityDailyList(param);
+		
+		hm.put("categories", param.getCategories());
+		hm.put("list", list);
+		return hm;
+	}
+	
+	@GetMapping(value = "/usage")
+	public HashMap<String,Object> usage(SearchParam param) {
+		log.debug(param.toString());
+		
+		
+		
+		HashMap<String,Object> hm = new HashMap<String,Object>();
+		List<HashMap<String, Object>> list = new ArrayList<HashMap<String, Object>>();
+		if("daily".equals(param.getCategoryType())) {
+			homeService.getStartEndDateList(param);
+			list = homeService.getUsageDateList(param);
+		}else {
+			//hourly
+			homeService.getStartEndDatTimeList(param);
+			list = homeService.getUsageDateTimeList(param);
+		}
+		
+		//chart 표시용 데이터
+		 
+		
+		
+		hm.put("categories", param.getCategories());
+		hm.put("list", list);
+		return hm;
+		
+		
 	}
 	
 	

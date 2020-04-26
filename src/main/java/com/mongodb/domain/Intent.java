@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class Intent {
 
+	private String dateDay;
 	private String skillUuid;
 	private String intent;
 	private double confidenceAvg;

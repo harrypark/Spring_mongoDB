@@ -57,34 +57,8 @@
     	</div>
     	</form>
     	<div class="row border">
-    		<div class="col-4 container" id="container_it10"></div>
-    		<div class="col-4 container" id="container_et10"></div>
-    		<div class="col-4 container bd-example" id="container_avg_confidence">
-    			<div>Avg. Confidence</div>
-    			<div>today</div>
-    			<div class="progress">
-				  <div id="todayIntentConfidenceAvg" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0.0" aria-valuemin="0" aria-valuemax="100"></div>
-				</div>
-				<div>last 7days</div>
-				<div class="progress">
-				  <div id="last7dayIntentConfidenceAvg" class="progress-bar bg-info" role="progressbar" style="width: 0%;" aria-valuenow="0.0" aria-valuemin="0" aria-valuemax="100"></div>
-				</div>
-    		</div>
-    	</div>
-    	<div class="row border">
-    		<div class="col container" id="usage">
-    			<table id="example" class="display" style="width:100%">
-			        <thead>
-			            <tr>
-			                <th>Intent Name</th>
-			                <th>Count</th>
-			                <th>Avg. Confidence</th>
-			                <th>Example</th>
-			                <th>Details</th>
-			            </tr>
-			        </thead>
-			    </table>
-    		</div>
+    		<div class="col-6 container" id="container_intent_daily"></div>
+    		<div class="col-6 container" id="container_entity_daily"></div>
     	</div>
     </div>
     
@@ -92,8 +66,6 @@
     
     
     <script type="text/javascript">
-		var chart ;
-		var chartRange;
 		$(function(){
  			 $('#startDt').val(moment().subtract(6, 'days').format('YYYYMMDD'));
  			 $('#endDt').val(moment().format('YYYYMMDD'));
@@ -169,85 +141,176 @@
 			
 			// 검색 버튼 클릭 이벤트
 			$( "button#button-container" ).on( "click", function( event ) {
-				callApiIntentTop10(); //api 호출
-				callApiEntityTop10(); //api 호출
-				callApiConfidenceAvg();
-				callApiIntentData();
+				callApiIntentDaily(); //api 호출
+				callApiEntityDaily();
 			});
 
 		});
 
 		
-	var callApiIntentTop10 = function(){
-		var categories = new Array();
-		var data = new Array();	
+	var callApiIntentDaily = function(){
 		$.ajax({
-			  url: '<c:url value="/api/intent/top10"/>',
+			  url: '<c:url value="/api/intent/daily"/>',
 			  data: $("#searchParam").serialize(),
 			  success: function( result ) {
 				console.log("intentTop10:"+result);
-				if(result.length >0){
-					for(var i=0; i < result.length ; i++){
-						categories.push(result[i].intent);
-						data.push(result[i].intentCount);
-					}
-					options.chart.renderTo = 'container_it10';
-					options.title.text='Intent Top10';
-					options.subtitle.text = $('#dateRange').val();
-					options.xAxis.categories = categories;
-					options.series[0].data = data;
-					chart = new Highcharts.Chart(options);
-				}else{
-					$('#container_it10').empty().text('No Data.');
-				}
+				
+ 				dashboardMultiChart('container_intent_daily','spline','Intent',0,result.categories,result.list);  
 			  }
 			});
 	} 
 
-	var callApiEntityTop10 = function(){
-		var categories = new Array();
-		var data = new Array();	
+	var callApiEntityDaily = function(){
 		$.ajax({
-			  url: '<c:url value="/api/entity/top10"/>',
+			  url: '<c:url value="/api/entity/daily"/>',
 			  data: $("#searchParam").serialize(),
 			  success: function( result ) {
 				console.log("entityTop10:"+result);
-				if(result.length >0){
-					for(var i=0; i < result.length ; i++){
-						categories.push(result[i].value);
-						data.push(result[i].entityCount);
-					}
-					options.chart.renderTo = 'container_et10';
-					options.title.text='Entity_value Top10';
-					options.subtitle.text = $('#dateRange').val();
-					options.xAxis.categories = categories;
-					options.series[0].data = data;
-					chart = new Highcharts.Chart(options);
-				}else{
-					$('#container_et10').empty().text('No Data.');
-				}
+				
+ 				dashboardMultiChart('container_entity_daily','spline','Entity',0,result.categories,result.list);  
 			  }
 			});
 	} 
 
-	var callApiConfidenceAvg = function(){
-		var todayIntentConfidenceAvg = 0.0;
-		var last7dayIntentConfidenceAvg = 0.0;
-		$.ajax({
-			  url: '<c:url value="/api/intent/confidenceAvg"/>',
-			  data: {skillUuid : $('#skillUuid').val()},
-			  success: function( result ) {
-				  console.log("callApiConfidenceAvg:"+result);
-				  todayIntentConfidenceAvg = result.today.toFixed(2);
-				  last7dayIntentConfidenceAvg = result.last7day.toFixed(2);	
-				  $('#todayIntentConfidenceAvg').attr('aria-valuenow',todayIntentConfidenceAvg).css('width',todayIntentConfidenceAvg+'%').text(todayIntentConfidenceAvg+'%');
-				  $('#last7dayIntentConfidenceAvg').attr('aria-valuenow',last7dayIntentConfidenceAvg).css('width',last7dayIntentConfidenceAvg+'%').text(last7dayIntentConfidenceAvg+'%');
-				
-				
+	function dashboardMultiChart(renderTo, chartType, title, yMin, categories, data_array ) {
+		new Highcharts.Chart({
+			chart: {
+				renderTo: renderTo,
+				type: chartType,
+				borderRadius: 0,
+				backgroundColor: false,
+				animation: Highcharts.svg, // don't animate in old IE
+				/*
+				, events: {
+					load: function() {
+						// set up the updating of the chart each second
+						var series = this.series[0];
+						var series2 = this.series[1];
+						setInterval(function() {
+							var x = (new Date()).getTime(), // current time
+								y = Math.random(),
+								z = Math.random();
+							series.addPoint([x, y], false, true);
+							series2.addPoint([x, z], true, true);
+						}, 1000);
+					}
 				}
-			});
-	} 
+				*/
+				zoomType: 'x'
+			},
+			title: {
+				text: title,
+			},
+			xAxis: {
+				categories: categories,
+				title:false,
+				lineColor: '#b2c0d0',
+				gridLineWidth:false,
+				tickColor: '#b2c0d0',
+				//alternateGridColor: '#eff5f9',
+				labels: {
+					style: {
+						color: '#3f6b9e'
+					}
+				}
+			},
+			yAxis: {
+				//max: (unit=='%'?100:yMax),
+				min: 0,
+				lineWidth: 1,
+				lineColor: '#b2c0d0',
+				gridLineColor: '#b2c0d0',
+				gridLineWidth:1,
+				gridLineDashStyle:'dot',
+				title:false,
+				labels: {
+					style: {
+						color: '#3f6b9e'
+					},
+					formatter: function() {
+		    			var maxElement = this.axis.max;
+		    			var currValue = this.value;
+		    			return currValue;
 
+		    		}
+				}
+
+			},
+			exporting: {
+				enabled: false
+			},
+			credits: {
+				enabled:false
+			},
+			legend: {
+				align:'center',
+				verticalAlign:'top',
+				backgroundColor:'none',
+	            borderWidth:0,
+	            symbolWidth:9,
+	            margin:5,
+	            padding:0,
+	            itemMarginTop:2,
+	            maxHeight:39,
+	            navigation: {
+	                activeColor: '#3E576F',
+	                animation: true,
+	                arrowSize: 8,
+	                inactiveColor: '#CCC',
+	                style: {
+	                    fontWeight: 'bold',
+	                    color: '#333',
+	                    fontSize: '11px'
+	                }
+	            },
+	            itemStyle: {
+	               cursor: 'pointer',
+	               color: '#3f6b9e',
+	               fontSize: '11px',
+	               fontWeight:'normal',
+	            }
+			},
+			tooltip: {
+				crosshairs: {
+					width:1,
+					color:'rgba(103, 166, 255, 1)'
+				},
+				shared: true,
+	            backgroundColor: 'rgba(255,255,255,0.5)',
+	            borderWidth:1,
+	            borderColor:'#b2c0d0',
+	            shadow:false,
+	            borderRadius:4,
+	            style: {
+	                color:'#000',
+	                fontSize: '11px',
+	                fontWeight: 'normal'
+	            },
+				xDateFormat:'%Y-%m-%d %H:%M:%S',
+				pointFormat: '<span style="color:{series.color}">{series.name}</span>:{point.y}<br/>',
+				/*
+				formatter: function() {
+					return '<b>'+ series.name +'</b><br/>'+ Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', point.x) +'<br/>'+ Highcharts.numberFormat(point.y, 2);
+				}
+				*/
+				//valueSuffix: ' ' + unit
+			},
+			plotOptions: {
+				series: {
+					fillOpacity: 0.3,
+					lineWidth: 1,
+					marker: {
+						enabled: false,
+						lineColor: '#fff',
+						lineWidth: 1,
+						radius: 2
+					}
+				}
+			},
+			series: data_array
+		});
+
+	}
 	var callApiIntentData = function(){
 		$('#example').dataTable().fnClearTable(); // 테이블 클리어
 		$.ajax({
@@ -268,56 +331,7 @@
 	} 
 
 
-	var options = {
-		    chart: {
-		        type: 'bar'
-		    },
-		    title: {
-		        text: 'Intent(Top10)'
-		    },
-		    subtitle: {
-		        text: '' 
-		    },
-		    xAxis: {
-		        categories: null,
-		        title: {
-		            text: null
-		        }
-		    },
-		    yAxis: {
-		     // categories: ['Africa', 'America', 'Asia', 'Europe', 'Oceania'],
-		        min: 0,
-		        title: {
-		            text: '',
-		            align: 'high'
-		        },
-		        labels: {
-		            overflow: 'justify'
-		        }
-		    },
-		    tooltip: {
-		    	pointFormat: '{point.name}: {point.y}'
-		    },
-		    plotOptions: {
-		        bar: {
-		            dataLabels: {
-		                enabled: true		            }
-		        }
-		    },
-		    legend: {
-		    	enabled: false,
-		        
-		    },
-		    credits: {
-		        enabled: true
-		    },
-		    series: [{
-				        data :  null   
-				    }]
-		}
 	
-	
-		
 
 		</script>
     </body>
