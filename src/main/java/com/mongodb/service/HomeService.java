@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mongodb.dao.HomeDao;
+import com.mongodb.domain.Conversation;
 import com.mongodb.domain.Entity;
 import com.mongodb.domain.Intent;
 import com.mongodb.domain.SearchParam;
@@ -64,7 +65,7 @@ public class HomeService {
 		for(Intent i : top10List) {
 			intents.add(i.getIntent());
 		}
-		param.setNames(intents);
+		param.setSchNames(intents);
 		
 		//일별 top10별 intent count 목록을 가져온다. 
 		List<Intent> dailyList = homeDao.getIntentTop10DailyCount(param);
@@ -75,7 +76,7 @@ public class HomeService {
 		 * serise data : {[name:"인텐트명1",data:[0,1,1,0 ....], ...]}
 		 */
 		List<HashMap<String,Object>> list = new ArrayList<HashMap<String,Object>>();
-		List<String> days = param.getDays();
+		List<String> days = param.getSchDays();
 		
 		for(String name: intents) {
 			HashMap<String,Object> hm = new HashMap<String,Object>();
@@ -114,8 +115,8 @@ public class HomeService {
 		List<String> categories = new ArrayList<>();
 		List<String> days = new ArrayList<>();
 		
-		DateTime startDt = fmt1.parseDateTime(param.getStartDt());
-		DateTime endDt = fmt1.parseDateTime(param.getEndDt());
+		DateTime startDt = fmt1.parseDateTime(param.getSchStartDt());
+		DateTime endDt = fmt1.parseDateTime(param.getSchEndDt());
 		//System.out.println("startDt:"+startDt +" endDt:"+endDt);
 		
 		DateTime currDt = startDt;
@@ -127,8 +128,8 @@ public class HomeService {
 			
 		} while (!currDt.isAfter(endDt));
 		
-		param.setDays(days);
-		param.setCategories(categories);
+		param.setSchDays(days);
+		param.setSchCategories(categories);
 		
 	}
 
@@ -141,7 +142,7 @@ public class HomeService {
 		for(Entity i : top10List) {
 			values.add(i.getValue());
 		}
-		param.setNames(values);
+		param.setSchNames(values);
 		
 		//일별 top10별 Entity count 목록을 가져온다. 
 		List<Entity> dailyList = homeDao.getEntityTop10DailyCount(param);
@@ -152,7 +153,7 @@ public class HomeService {
 		 * serise data : {[name:"인텐트명1",data:[0,1,1,0 ....], ...]}
 		 */
 		List<HashMap<String,Object>> list = new ArrayList<HashMap<String,Object>>();
-		List<String> days = param.getDays();
+		List<String> days = param.getSchDays();
 		
 		for(String name: values) {
 			HashMap<String,Object> hm = new HashMap<String,Object>();
@@ -194,7 +195,7 @@ public class HomeService {
 		}
 		//log.debug(listhm.toString());
 		
-		List<String> dayTimes = param.getDays();
+		List<String> dayTimes = param.getSchDays();
 		int[] usage_array = new int[dayTimes.size()];
 		int[] api_call_array = new int[dayTimes.size()];
 		
@@ -248,8 +249,8 @@ public class HomeService {
 		List<String> categories = new ArrayList<>();
 		List<String> daytimes = new ArrayList<>();
 		
-		DateTime startDt = fmt1.parseDateTime(param.getStartDt()+"0000");
-		DateTime endDt = fmt1.parseDateTime(param.getEndDt()+"2300");
+		DateTime startDt = fmt1.parseDateTime(param.getSchStartDt()+"0000");
+		DateTime endDt = fmt1.parseDateTime(param.getSchEndDt()+"2300");
 		//System.out.println("startDt:"+startDt +" endDt:"+endDt);
 		
 		DateTime currDt = startDt;
@@ -261,8 +262,8 @@ public class HomeService {
 			
 		} while (!currDt.isAfter(endDt));
 		
-		param.setDays(daytimes);
-		param.setCategories(categories);
+		param.setSchDays(daytimes);
+		param.setSchCategories(categories);
 		
 		//categories.forEach(System.out::println);
 		
@@ -281,7 +282,7 @@ public class HomeService {
 		}
 		//log.debug(listhm.toString());
 		
-		List<String> dayTimes = param.getDays();
+		List<String> dayTimes = param.getSchDays();
 		int[] usage_array = new int[dayTimes.size()];
 		int[] api_call_array = new int[dayTimes.size()];
 		
@@ -324,5 +325,20 @@ public class HomeService {
 		rlist.add(hm2);
 		
 		return rlist;
+	}
+
+	public List<Conversation> getConversationDataList(SearchParam param) {
+		// TODO Auto-generated method stub
+		return homeDao.getConversationDataList(param);
+	}
+
+	public Integer getConversationDataTotalCount(SearchParam param) {
+		
+		return homeDao.getConversationDataTotalCount(param);
+	}
+
+	public Integer getConversationDataFilteredCount(SearchParam param) {
+		// TODO Auto-generated method stub
+		return homeDao.getConversationDataFilteredCount(param);
 	}
 }

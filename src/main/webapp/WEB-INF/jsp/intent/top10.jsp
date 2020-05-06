@@ -41,13 +41,13 @@
     	<div class="row border">
     		
     		<div class="col-4">
-    			<select name="skillUuid" id="skillUuid">
+    			<select name="schSkillUuid" id="schSkillUuid">
 		    		<option value="c9d7e581-723f-11ea-bc9b-022e2bbe7be0">피자주문</option>
 		    	 </select>
     		</div>
     		<div class="col-6">
-    			<input type="hidden" name="startDt" id="startDt" value=""/>
-    			<input type="hidden" name="endDt" id="endDt" value=""/>
+    			<input type="hidden" name="schStartDt" id="schStartDt" value=""/>
+    			<input type="hidden" name="schEndDt" id="schEndDt" value=""/>
     			<input type="text" name="dateRange" id="dateRange" class="dateRange" value=""/>
     		</div>
     		
@@ -95,8 +95,8 @@
 		var chart ;
 		var chartRange;
 		$(function(){
- 			 $('#startDt').val(moment().subtract(6, 'days').format('YYYYMMDD'));
- 			 $('#endDt').val(moment().format('YYYYMMDD'));
+ 			 $('#schStartDt').val(moment().subtract(6, 'days').format('YYYYMMDD'));
+ 			 $('#schEndDt').val(moment().format('YYYYMMDD'));
 			
 			$('#example').dataTable({
 			});
@@ -156,8 +156,8 @@
 			    "maxDate": "9999-12-31"
 			}, function(start, end, label) {
 			  console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
-			  $('#startDt').val(start.format('YYYYMMDD'));
-			  $('#endDt').val(end.format('YYYYMMDD'));
+			  $('#schStartDt').val(start.format('YYYYMMDD'));
+			  $('#schEndDt').val(end.format('YYYYMMDD'));
 			});
 			$('#dateRange').on('show.daterangepicker', function(ev, picker) {
 				  console.log(picker.startDate.format('YYYY-MM-DD'));
@@ -235,7 +235,7 @@
 		var last7dayIntentConfidenceAvg = 0.0;
 		$.ajax({
 			  url: '<c:url value="/api/intent/confidenceAvg"/>',
-			  data: {skillUuid : $('#skillUuid').val()},
+			  data: {schSkillUuid : $('#schSkillUuid').val()},
 			  success: function( result ) {
 				  console.log("callApiConfidenceAvg:"+result);
 				  todayIntentConfidenceAvg = result.today.toFixed(2);

@@ -3,18 +3,25 @@ package com.mongodb.domain;
 import java.util.List;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
-public class SearchParam {
+@ToString(callSuper = true)
+public class SearchParam extends DtSearchParam{
 
-	private String startDt;
-	private String endDt;
-	private String skillUuid;
+	private String schStartDt;
+	private String schEndDt;
+	private String schSkillUuid;
 	private String schDate;
-	private String categoryType;//daily, hourly
+	private String schCategoryType;//daily, hourly
+	private String schConfidence;
+	private String schInputType;
+	private String schIntent;
+	private String schUser;
 	
-	private List<String> days;
-	private List<String> categories;
-	private List<String> names;
+	
+	private List<String> schDays;
+	private List<String> schCategories;
+	private List<String> schNames;
 	
 }

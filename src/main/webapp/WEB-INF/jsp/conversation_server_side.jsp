@@ -35,14 +35,33 @@
     	<form id="searchParam">
     	<div class="row border">
     		
-    		<div class="col-3">
+    		<div class="col-2">
     			<select name="schSkillUuid" id="schSkillUuid">
 		    		<option value="c9d7e581-723f-11ea-bc9b-022e2bbe7be0">피자주문</option>
 		    	 </select>
     		</div>
-    		<div class="col-3">
+    		<div class="col-3">confidence :
+				 <select name="schConfidence" id="schConfidence">
+		    		<option value="all">All</option>
+		    		<option value="020">0~20%</option>
+		    		<option value="2040">20~40%</option>
+		    		<option value="4060">40~60%</option>
+		    		<option value="6080">60~80%</option>
+		    		<option value="80100">80~100%</option>
+		    	 </select>
     		</div>
-    		<div class="col-4">
+    		<div class="col-2">InputType :
+				 <select name="schInputType" id="schInputType">
+		    		<option value="all">All</option>
+		    		 <c:forEach items="${inputType}" var="value">
+		    		 	<c:set var="a" value="${fn:substring(value,0,1)}"/>
+		    		 	<c:set var="b1" value="${fn:substring(value,1,-1)}"/>
+		    		 	<c:set var="b2" value="${fn:toLowerCase(b1)}"/>
+				          <option value="${a}${b2}">${a}${b2}</option>
+				     </c:forEach>
+		    	 </select>
+    		</div>
+    		<div class="col-3">
     			<input type="hidden" name="schStartDt" id="schStartDt" value=""/>
     			<input type="hidden" name="schEndDt" id="schEndDt" value=""/>
     			<input type="text" name="dateRange" id="dateRange" class="dateRange" value=""/>
@@ -50,6 +69,19 @@
     		
     		<div class="col-2">
     			<button type="button" class="btn btn-outline-secondary" id="button-container">search</button>
+    		</div>
+    	</div>
+    	<div class="row border">
+    		<div class="col-2">
+    		</div>
+    		<div class="col-3">
+    			Intent : <input type="text" id="schIntent" name="schInt">
+    		</div>
+    		<div class="col-3">
+    			User : <input type="text" id="schUser" name="schUser">
+    		</div>
+    		
+    		<div class="col-4">
     		</div>
     	</div>
     	</form>
@@ -64,7 +96,6 @@
 			                <th>Intent</th>
 			                <th>Confidence(%)</th>
 			                <th>User</th>
-			                <th>Detail</th>
 			            </tr>
 			        </thead>
 			    </table>
@@ -110,13 +141,61 @@
     
     
     <script type="text/javascript">
-		
+    var table;
 		$(function(){
  			 $('#schStartDt').val(moment().subtract(6, 'days').format('YYYYMMDD'));
  			 $('#schEndDt').val(moment().format('YYYYMMDD'));
-			
-			$('#example').dataTable({
-			});
+ 			var columns = ["DATE", "INPUT_TYPE", "INPUT_TEXT", "INTENT","INTENT_CONFIDENCE","USER"];
+ 			 table = $('#example').dataTable({
+                pageLength: 10,
+                pagingType : "full_numbers",
+                bPaginate: true,
+                bLengthChange: true,
+                lengthMenu : [ [ 1, 3, 5, 10, -1 ], [ 1, 3, 5, 10, "All" ] ],
+                responsive: true,
+                //bAutoWidth: false,
+                processing: true,
+                ordering: false,
+                bServerSide: true,
+                searching: false,
+                rowId:'id',
+                ajax : {
+                    "url":"/api/conversation/serverSide",
+                    "type":"POST",
+                    "data": function (d) {
+                    	d.schSkillUuid = $('#schSkillUuid').val();
+                        d.schStartDt = $('#schStartDt').val();
+                        d.schEndDt = $('#schEndDt').val();
+                        d.schConfidence = $('#schConfidence').val();
+                        d.schInputType = $('#schInputType').val();
+                        d.schIntent = $('#schIntent').val();
+                        d.schUser = $('#schUser').val();
+                        
+                    }
+                }, 
+                //sAjaxSource : "/api/conversation/serverSide?startDt="+$('#startDt').val()+"&endDt="+$('#endDt').val()+"&skillUuid="+$('#skillUuid').val()+"&columns="+columns,
+                sServerMethod: "POST",
+                columns : [
+                    {data: "date"},
+                    {data: "inputType"},
+                    {data: "inputText"},
+                    {data: "intent"},
+                    {data: "intentConfidence"},
+                    {data: "user"}
+                ],
+                /*
+                columnDefs : [
+                    {
+                        "targets": [1,2,3,4,5,6],
+                        "visible": true,
+                    },
+                    {
+                        "targets": [0],
+                        "visible": false,
+                    },
+                ]
+ 				*/
+            });
 
 			$('#dateRange').daterangepicker({
 			    "autoApply": true,
@@ -182,7 +261,10 @@
 				});
 			// 검색 버튼 클릭 이벤트
 			$( "button#button-container" ).on( "click", function( event ) {
-				callApiConversationData(); //api 호출
+				//callApiConversationData(); //api 호출
+				//table.column(searchType).search(searchValue).draw();
+				table.draw();
+
 			});
 
 			var table = $('#example').DataTable();

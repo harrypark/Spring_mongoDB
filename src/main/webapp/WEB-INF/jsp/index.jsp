@@ -14,6 +14,7 @@
     		<li>mongoDB Test 04 ---> <a href="<c:url value='/#' />"></a> (Intent modal)</li>
     		<li>mongoDB Test 05 ---> <a href="<c:url value='/#' />"></a> (confidence )</li>
     		<li>mongoDB Test 06 ---> <a href="<c:url value='/conversation' />">Go</a> (Conversation 작업중 )</li>
+    		<li>mongoDB Test 07 ---> <a href="<c:url value='/conversation/serverSide' />">Go</a> (Conversation Server Side) Excel제외</li>
     	</ul>
     
     </body>

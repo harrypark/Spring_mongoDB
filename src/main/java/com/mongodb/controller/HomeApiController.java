@@ -9,9 +9,12 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mongodb.domain.Conversation;
+import com.mongodb.domain.DtResult;
 import com.mongodb.domain.Entity;
 import com.mongodb.domain.Intent;
 import com.mongodb.domain.SearchParam;
@@ -40,8 +43,8 @@ public class HomeApiController {
 	public HashMap<String,Double> getIntentConfidenceAvg(SearchParam param) {
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
 		DateTime endDt = new DateTime();//today
-		param.setEndDt(formatter.print(endDt)); 
-		param.setStartDt(formatter.print(endDt.minusDays(7)));//today - 7 day (last 7day)
+		param.setSchEndDt(formatter.print(endDt)); 
+		param.setSchStartDt(formatter.print(endDt.minusDays(7)));//today - 7 day (last 7day)
 		//param.setSkillUuid("c9d7e581-723f-11ea-bc9b-022e2bbe7be0");
 		log.debug(param.toString());
 		
@@ -68,7 +71,7 @@ public class HomeApiController {
 		HashMap<String,Object> hm = new HashMap<String,Object>(); 
 		List<HashMap<String,Object>> list = homeService.getIntentDailyList(param);
 		
-		hm.put("categories", param.getCategories());
+		hm.put("categories", param.getSchCategories());
 		hm.put("list", list);
 		return hm;
 	}
@@ -89,7 +92,7 @@ public class HomeApiController {
 		HashMap<String,Object> hm = new HashMap<String,Object>(); 
 		List<HashMap<String,Object>> list = homeService.getEntityDailyList(param);
 		
-		hm.put("categories", param.getCategories());
+		hm.put("categories", param.getSchCategories());
 		hm.put("list", list);
 		return hm;
 	}
@@ -102,7 +105,7 @@ public class HomeApiController {
 		
 		HashMap<String,Object> hm = new HashMap<String,Object>();
 		List<HashMap<String, Object>> list = new ArrayList<HashMap<String, Object>>();
-		if("daily".equals(param.getCategoryType())) {
+		if("daily".equals(param.getSchCategoryType())) {
 			homeService.getStartEndDateList(param);
 			list = homeService.getUsageDateList(param);
 		}else {
@@ -115,12 +118,52 @@ public class HomeApiController {
 		 
 		
 		
-		hm.put("categories", param.getCategories());
+		hm.put("categories", param.getSchCategories());
 		hm.put("list", list);
 		return hm;
 		
 		
 	}
+	
+	@GetMapping(value = "/conversation/data")
+	public List<Conversation> conversationData(SearchParam param) {
+		log.debug(param.toString());
+		
+		List<Conversation> list = homeService.getConversationDataList(param);
+		return list;
+	}
+
+	@PostMapping(value = "/conversation/serverSide")
+	public DtResult conversationServerSide(SearchParam param) {
+		log.debug(param.toString());
+		
+		//사용자 리스트 조회 서비스 호출
+        List<Conversation> list = homeService.getConversationDataList(param);
+        list.forEach(System.out::println);
+        
+        Integer filteredCount = homeService.getConversationDataFilteredCount(param);
+		System.out.println("filteredCount:"+filteredCount);
+        
+        //페이징 고려하지 않은 전체 수 조회 서비스 호출
+        Integer totalCount = homeService.getConversationDataTotalCount(param);
+		System.out.println("totalCount:"+totalCount);
+        
+		
+		
+		
+		DtResult dtres = new DtResult();
+		dtres.setData(list);
+        //필터링 된 전체 데이터 - 필터링 기능 사용하지 않기 때문에 실제 전체 데이터와 동일하다.
+		dtres.setRecordsFiltered(filteredCount);
+		dtres.setRecordsTotal(totalCount);
+        
+		//List<Conversation> list = homeService.getConversationDataList(param);
+		return dtres;
+	}
+	
+	
+	
+	
 	
 	
 	

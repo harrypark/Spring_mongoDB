@@ -4,7 +4,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.mongodb.domain.ResponseTypeCode;
 
 @Controller
 public class HomeController {
@@ -43,6 +46,15 @@ public class HomeController {
 	public String conversation() {
 		
 		return "conversation";
+	}
+	
+	@RequestMapping("/conversation/serverSide")
+	public String conversationServerSide(Model model) {
+		
+		//List<ResponseTypeCode> tutorTypes = tutorTypes = new ArrayList<ResponseTypeCode (Arrays.asList(ResponseTypeCode.values()));
+	    model.addAttribute("inputType", ResponseTypeCode.values());
+		
+		return "conversation_server_side";
 	}
 	
 	
