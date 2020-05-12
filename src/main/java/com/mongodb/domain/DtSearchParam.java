@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class DtSearchParam {
 	private int draw;
-	private int start;
+	private Long start;
 	private int length;
 	
 	

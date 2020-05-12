@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
 import com.mongodb.domain.Conversation;
+import com.mongodb.domain.DoubleValue;
 import com.mongodb.domain.Entity;
 import com.mongodb.domain.IntegerValue;
 import com.mongodb.domain.Intent;
@@ -174,38 +175,13 @@ public class HomeDaoImpl implements HomeDao {
 		if (param.getSchStartDt() != null) {
 			cri.and("date_day").gte(param.getSchStartDt()).lte(param.getSchEndDt());
 		}
-		if(!"all".equals(param.getSchConfidence())) {
-			if("020".equals(param.getSchConfidence())) {
-				cri.and("output.intents.confidence").gte(0.0).lt(0.2);
-			}else if("2040".equals(param.getSchConfidence())) {
-				cri.and("output.intents.confidence").gte(0.2).lt(0.4);
-			}else if("4060".equals(param.getSchConfidence())) {
-				cri.and("output.intents.confidence").gte(0.4).lt(0.6);
-			}else if("6080".equals(param.getSchConfidence())) {
-				cri.and("output.intents.confidence").gte(0.6).lt(0.8);
-			}else if("80100".equals(param.getSchConfidence())) {
-				cri.and("output.intents.confidence").gte(0.8).lt(1.0);
-			}
-		}
-		if(!"all".equals(param.getSchInputType())) {
-			cri.and("input.type").is(param.getSchInputType());
-		}
-		if(param.getSchIntent()==null || !"".equals(param.getSchIntent())) {
-			cri.and("output.intents.intent").regex(param.getSchIntent());
-		}
-		if(param.getSchUser()==null || !"".equals(param.getSchUser())) {
-			cri.and("userId").regex(param.getSchUser());
-		}
-		
 		
 		Aggregation agg = Aggregation.newAggregation(
 				Aggregation.match(cri),
 				Aggregation.unwind("output.intents"),
 				Aggregation.project().and("_id").as("id").and("date").as("date").and("input.type").as("inputType").and("input.value").as("inputText").and("output.intents.intent").as("intent").and("output.intents.confidence").multiply(100).as("intentConfidence")
 					.and("userId").as("user").and("date_day").as("dateDay"),
-				Aggregation.sort(Sort.Direction.DESC, "date"),
-				Aggregation.skip(param.getStart()),
-				Aggregation.limit(param.getLength())
+				Aggregation.sort(Sort.Direction.DESC, "date")
 				);
 		AggregationResults<Conversation> results = mongoTemplate.aggregate(agg, COLLECTION_NAME, Conversation.class);  
 		//System.out.println("re:"+results);
@@ -228,7 +204,7 @@ public class HomeDaoImpl implements HomeDao {
 				Aggregation.group().count().as("count"),
 				Aggregation.project().and("count").as("value")
 				);
-		AggregationResults<IntegerValue> results = mongoTemplate.aggregate(agg, "sample", IntegerValue.class);  
+		AggregationResults<IntegerValue> results = mongoTemplate.aggregate(agg, COLLECTION_NAME, IntegerValue.class);  
 		//System.out.println("re:"+results);
 		
 		Integer count = results.getUniqueMappedResult()==null?0:results.getUniqueMappedResult().getValue();  //결과
@@ -272,12 +248,81 @@ public class HomeDaoImpl implements HomeDao {
 				Aggregation.group().count().as("count"),
 				Aggregation.project().and("count").as("value")
 				);
-		AggregationResults<IntegerValue> results = mongoTemplate.aggregate(agg, "sample", IntegerValue.class);  
+		AggregationResults<IntegerValue> results = mongoTemplate.aggregate(agg, COLLECTION_NAME, IntegerValue.class);  
 		//System.out.println("re:"+results);
 		
 		Integer count = results.getUniqueMappedResult()==null?0:results.getUniqueMappedResult().getValue();  //결과
 		//System.out.println("list:"+list);
 		return count;
+	}
+
+	@SuppressWarnings("deprecation")
+	@Override
+	public List<Conversation> getConversationServerSideDataList(SearchParam param) {
+		Criteria cri = Criteria.where("skill_uuid").is(param.getSchSkillUuid());
+		if (param.getSchStartDt() != null) {
+			cri.and("date_day").gte(param.getSchStartDt()).lte(param.getSchEndDt());
+		}
+		if(!"all".equals(param.getSchConfidence())) {
+			if("020".equals(param.getSchConfidence())) {
+				cri.and("output.intents.confidence").gte(0.0).lt(0.2);
+			}else if("2040".equals(param.getSchConfidence())) {
+				cri.and("output.intents.confidence").gte(0.2).lt(0.4);
+			}else if("4060".equals(param.getSchConfidence())) {
+				cri.and("output.intents.confidence").gte(0.4).lt(0.6);
+			}else if("6080".equals(param.getSchConfidence())) {
+				cri.and("output.intents.confidence").gte(0.6).lt(0.8);
+			}else if("80100".equals(param.getSchConfidence())) {
+				cri.and("output.intents.confidence").gte(0.8).lt(1.0);
+			}
+		}
+		if(!"all".equals(param.getSchInputType())) {
+			cri.and("input.type").is(param.getSchInputType());
+		}
+		if(param.getSchIntent()==null || !"".equals(param.getSchIntent())) {
+			cri.and("output.intents.intent").regex(param.getSchIntent());
+		}
+		if(param.getSchUser()==null || !"".equals(param.getSchUser())) {
+			cri.and("userId").regex(param.getSchUser());
+		}
+		
+		
+		Aggregation agg = Aggregation.newAggregation(
+				Aggregation.match(cri),
+				Aggregation.unwind("output.intents"),
+				Aggregation.project().and("_id").as("id").and("date").as("date").and("input.type").as("inputType").and("input.value").as("inputText").and("output.intents.intent").as("intent").and("output.intents.confidence").multiply(100).as("intentConfidence")
+					.and("userId").as("user").and("date_day").as("dateDay"),
+				Aggregation.sort(Sort.Direction.DESC, "date"),
+				Aggregation.skip(param.getStart()),
+				Aggregation.limit(param.getLength())
+				);
+		AggregationResults<Conversation> results = mongoTemplate.aggregate(agg, COLLECTION_NAME, Conversation.class);  
+		//System.out.println("re:"+results);
+		
+		List<Conversation> list = results.getMappedResults();  //결과
+		//System.out.println("list:"+list);
+		return list;
+	}
+
+	@Override
+	public Double getIntentConfidenceTotalAvg(SearchParam param) {
+		Criteria cri = Criteria.where("skill_uuid").is(param.getSchSkillUuid());
+		if (param.getSchStartDt() != null) {
+			cri.and("date_day").gte(param.getSchStartDt()).lte(param.getSchEndDt());
+		}
+		
+		Aggregation agg = Aggregation.newAggregation(
+				Aggregation.match(cri),
+				Aggregation.unwind("output.intents"),
+				Aggregation.group().avg("output.intents.confidence").as("confidenceAvg"),
+				Aggregation.project().and("confidenceAvg").multiply(100).as("value")
+				);
+		AggregationResults<DoubleValue> results = mongoTemplate.aggregate(agg, COLLECTION_NAME, DoubleValue.class);  
+		//System.out.println("re:"+results);
+		
+		Double totAvg = results.getUniqueMappedResult()==null?0.0:results.getUniqueMappedResult().getValue();  //결과
+		//System.out.println("list:"+list);
+		return totAvg;
 	}
 
 	

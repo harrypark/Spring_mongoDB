@@ -29,5 +29,9 @@ public interface HomeDao {
 
 	Integer getConversationDataFilteredCount(SearchParam param);
 
+	List<Conversation> getConversationServerSideDataList(SearchParam param);
+
+	Double getIntentConfidenceTotalAvg(SearchParam param);
+
 
 }

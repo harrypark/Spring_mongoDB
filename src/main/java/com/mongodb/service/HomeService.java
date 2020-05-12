@@ -341,4 +341,29 @@ public class HomeService {
 		// TODO Auto-generated method stub
 		return homeDao.getConversationDataFilteredCount(param);
 	}
+
+	public List<Conversation> getConversationServerSideDataList(SearchParam param) {
+		// TODO Auto-generated method stub
+		return homeDao.getConversationServerSideDataList(param);
+	}
+
+	public HashMap<String, Object> getIntentConfidence(SearchParam param) {
+		/*
+		 * 1. 기간 전체 confidence의 Avg. - totAvg Double
+		 * 2. 기간  confidence별 count   - scatterData  Array[confidence, count] 
+		 * 3. 일별 confidence평균       -  dailyAvg List<day, confidenceAvg>
+		 * 4. 일별 confidence 분포     -  dailyCountDist List<day,0,20,40,60,80,100>
+		 */
+		HashMap<String,Object> resMap = new HashMap<String,Object>();
+		/*
+		 * 1. 기간 전체 confidence의 Avg. - totAvg Double
+		 */
+		Double totAvg = homeDao.getIntentConfidenceTotalAvg(param);
+		resMap.put("totAvg", totAvg);
+		
+		
+		
+		
+		return resMap;
+	}
 }

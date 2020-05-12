@@ -12,8 +12,8 @@
     		<li>mongoDB Test 02 ---> <a href="<c:url value='/intent/daily' />">Go</a> (Top10 일별 카운트 line chart)</li>
     		<li>mongoDB Test 03 ---> <a href="<c:url value='/dashboard' />">Go</a> (Usage Daily, Hourly chart)</li>
     		<li>mongoDB Test 04 ---> <a href="<c:url value='/#' />"></a> (Intent modal)</li>
-    		<li>mongoDB Test 05 ---> <a href="<c:url value='/#' />"></a> (confidence )</li>
-    		<li>mongoDB Test 06 ---> <a href="<c:url value='/conversation' />">Go</a> (Conversation 작업중 )</li>
+    		<li>mongoDB Test 05 ---> <a href="<c:url value='/confidence' />">Go</a> (confidence )</li>
+    		<li>mongoDB Test 06 ---> <a href="<c:url value='/conversation' />">Go</a> (Conversation) Data Table완료</li>
     		<li>mongoDB Test 07 ---> <a href="<c:url value='/conversation/serverSide' />">Go</a> (Conversation Server Side) Excel제외</li>
     	</ul>
     

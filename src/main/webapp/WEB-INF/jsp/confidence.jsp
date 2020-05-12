@@ -5,17 +5,14 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-    	<title>conversation</title>
+    	<title>confidence</title>
     	
+    	<script src="https://code.highcharts.com/highcharts.js"></script>
+		<script src="https://code.highcharts.com/modules/exporting.js"></script>
+		<script src="https://code.highcharts.com/modules/export-data.js"></script>
+		<script src="https://code.highcharts.com/modules/accessibility.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 		<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
-		<script src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-		<script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
-		<script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
-		
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 		
 		
@@ -26,11 +23,13 @@
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <!--     	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> -->
     	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
-		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
 		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 		    	
     	<style type="text/css">
-		    	
+		   .container {
+			    height: 458px;
+			}
+			
     	</style>
     </head>
     <body>
@@ -39,33 +38,14 @@
     	<form id="searchParam">
     	<div class="row border">
     		
-    		<div class="col-2">
+    		<div class="col-3">
     			<select name="schSkillUuid" id="schSkillUuid">
 		    		<option value="c9d7e581-723f-11ea-bc9b-022e2bbe7be0">피자주문</option>
 		    	 </select>
     		</div>
-    		<div class="col-3">confidence :
-				 <select name="schConfidence" id="schConfidence">
-		    		<option value="all">All</option>
-		    		<option value="020">0~20%</option>
-		    		<option value="2040">20~40%</option>
-		    		<option value="4060">40~60%</option>
-		    		<option value="6080">60~80%</option>
-		    		<option value="80100">80~100%</option>
-		    	 </select>
-    		</div>
-    		<div class="col-2">InputType :
-				 <select name="schInputType" id="schInputType">
-		    		<option value="all">All</option>
-		    		 <c:forEach items="${inputType}" var="value">
-		    		 	<c:set var="a" value="${fn:substring(value,0,1)}"/>
-		    		 	<c:set var="b1" value="${fn:substring(value,1,-1)}"/>
-		    		 	<c:set var="b2" value="${fn:toLowerCase(b1)}"/>
-				          <option value="${a}${b2}">${a}${b2}</option>
-				     </c:forEach>
-		    	 </select>
-    		</div>
     		<div class="col-3">
+    		</div>
+    		<div class="col-4">
     			<input type="hidden" name="schStartDt" id="schStartDt" value=""/>
     			<input type="hidden" name="schEndDt" id="schEndDt" value=""/>
     			<input type="text" name="dateRange" id="dateRange" class="dateRange" value=""/>
@@ -75,31 +55,37 @@
     			<button type="button" class="btn btn-outline-secondary" id="button-container">search</button>
     		</div>
     	</div>
+    	</form>
     	<div class="row border">
-    		<div class="col-2">
+    		<div class="col-6 container">
+    			<div class="row border" style="height: 50px;">
+    				<div class="col">
+		    			<div>Total Avg.</div>
+		    			<div class="progress">
+						  <div id="confidenceAvg" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0.0" aria-valuemin="0" aria-valuemax="100"></div>
+						</div>
+    				</div>
+    			</div>
+    			<div class="row border">
+    				<div class="col" id="scatterChart">
+    				</div>
+    			</div>
     		</div>
-    		<div class="col-3">
-    			Intent : <input type="text" id="schIntent" name="schInt">
-    		</div>
-    		<div class="col-3">
-    			User : <input type="text" id="schUser" name="schUser">
-    		</div>
-    		
-    		<div class="col-4">
+    		<div class="col-6 container">
+    			
     		</div>
     	</div>
-    	</form>
     	<div class="row border">
     		<div class="col container" id="usage">
     			<table id="example" class="display" style="width:100%">
 			        <thead>
 			            <tr>
 			                <th>Date</th>
-			                <th>Input Type</th>
-			                <th>User Input Text</th>
-			                <th>Intent</th>
-			                <th>Confidence(%)</th>
-			                <th>User</th>
+			                <th>0~20%</th>
+			                <th>20~40%</th>
+			                <th>40~60%</th>
+			                <th>60~80%</th>
+			                <th>80~100%</th>
 			            </tr>
 			        </thead>
 			    </table>
@@ -145,68 +131,17 @@
     
     
     <script type="text/javascript">
-    var table;
+		
 		$(function(){
  			 $('#schStartDt').val(moment().subtract(6, 'days').format('YYYYMMDD'));
  			 $('#schEndDt').val(moment().format('YYYYMMDD'));
- 			var columns = ["DATE", "INPUT_TYPE", "INPUT_TEXT", "INTENT","INTENT_CONFIDENCE","USER"];
- 			 table = $('#example').dataTable({
- 				 dom: 'Bfrtip',
- 		        buttons: [
- 		            'copyHtml5',
- 		            'excelHtml5',
- 		            'csvHtml5',
- 		            'pdfHtml5'
- 		        ],
-                pageLength: 10,
-                pagingType : "full_numbers",
-                bPaginate: true,
-                bLengthChange: true,
-                lengthMenu : [ [ 1, 3, 5, 10, -1 ], [ 1, 3, 5, 10, "All" ] ],
-                responsive: true,
-                //bAutoWidth: false,
-                processing: true,
-                ordering: false,
-                bServerSide: true,
-                searching: false,
-                rowId:'id',
-                ajax : {
-                    "url":"/api/conversation/serverSide",
-                    "type":"POST",
-                    "data": function (d) {
-                    	d.schSkillUuid = $('#schSkillUuid').val();
-                        d.schStartDt = $('#schStartDt').val();
-                        d.schEndDt = $('#schEndDt').val();
-                        d.schConfidence = $('#schConfidence').val();
-                        d.schInputType = $('#schInputType').val();
-                        d.schIntent = $('#schIntent').val();
-                        d.schUser = $('#schUser').val();
-                        
-                    }
-                }, 
-                //sAjaxSource : "/api/conversation/serverSide?startDt="+$('#startDt').val()+"&endDt="+$('#endDt').val()+"&skillUuid="+$('#skillUuid').val()+"&columns="+columns,
-                sServerMethod: "POST",
-                columns : [
-                    {data: "date"},
-                    {data: "inputType"},
-                    {data: "inputText"},
-                    {data: "intent"},
-                    {data: "intentConfidence"},
-                    {data: "user"}
-                ],
-                /*
-                columnDefs : [
-                    {
-                        "targets": [1,2,3,4,5,6],
-                        "visible": true,
-                    },
-                    {
-                        "targets": [0],
-                        "visible": false,
-                    },
-                ]
- 				*/
-            });
+
+
+//  			  todayIntentConfidenceAvg = result.today.toFixed(2);
+			  $('#confidenceAvg').attr('aria-valuenow',35.25).css('width',35.25+'%').text(35.25+'%');
+			
+			$('#example').dataTable({
+			});
 
 			$('#dateRange').daterangepicker({
 			    "autoApply": true,
@@ -272,10 +207,7 @@
 				});
 			// 검색 버튼 클릭 이벤트
 			$( "button#button-container" ).on( "click", function( event ) {
-				//callApiConversationData(); //api 호출
-				//table.column(searchType).search(searchValue).draw();
-				table.draw();
-
+				callApiConfidenceData(); //api 호출
 			});
 
 			var table = $('#example').DataTable();
@@ -291,18 +223,18 @@
 			})
 			
 			
-
+			scatterChart("scatterChart",null);
 		});
 
 		
-		var callApiConversationData = function(){
+		var callApiConfidenceData = function(){
 			$('#example').dataTable().fnClearTable(); // 테이블 클리어
 			$.ajax({
-				  url: '<c:url value="/api/conversation/data"/>',
+				  url: '<c:url value="/api/intent/confidence"/>',
 				  data: $("#searchParam").serialize(),
 				  success: function( result ) {
 					  console.log(result);
-						
+						/*
 						for(var i=0; i<result.length;i++ ){
 							data = result[i];
 							var rowIndex = $('#example').dataTable().fnAddData([
@@ -315,12 +247,83 @@
 // 						 	});
 						}
 						$('#example').dataTable().fnDraw();
-
+						*/
 						
 
 					}
 				});
 		} 
+
+		var scatterChart = function(renderTo,data_array){
+			Highcharts.chart(renderTo, {
+			    chart: {
+			        type: 'scatter',
+			        zoomType: 'xy'
+			    },
+			    title: {
+			        text: 'Height Versus Weight of 507 Individuals by Gender'
+			    },
+			    subtitle: {
+			        text: 'Source: Heinz  2003'
+			    },
+			    xAxis: {
+			    	min: 0,
+			    	max:100,
+			        title: {
+			            enabled: true,
+			            text: 'Height (cm)'
+			        },
+			        startOnTick: true,
+			        endOnTick: true,
+			        showLastLabel: true
+			    },
+			    yAxis: {
+			    	min: 0,
+			        title: {
+			            text: 'Weight (kg)'
+			        }
+			    },
+			    legend: {
+			        layout: 'vertical',
+			        align: 'left',
+			        verticalAlign: 'top',
+			        x: 100,
+			        y: 70,
+			        floating: true,
+			        backgroundColor: Highcharts.defaultOptions.chart.backgroundColor,
+			        borderWidth: 1
+			    },
+			    plotOptions: {
+			        scatter: {
+			            marker: {
+			                radius: 5,
+			                states: {
+			                    hover: {
+			                        enabled: true,
+			                        lineColor: 'rgb(100,100,100)'
+			                    }
+			                }
+			            },
+			            states: {
+			                hover: {
+			                    marker: {
+			                        enabled: false
+			                    }
+			                }
+			            },
+			            tooltip: {
+			                headerFormat: '<b>{series.name}</b><br>',
+			                pointFormat: '{point.x} cm, {point.y} kg'
+			            }
+			        }
+			    },
+			    series: [{
+			        name: 'Male',
+			        color: 'rgba(119, 152, 191, .5)',
+			        data: [[31.28, 2.0], [34.49, 1.0], [34.65, 1.0], [35.71, 1.0], [38.37, 1.0]]
+			    }]
+			});	
+		}
 
 	
 

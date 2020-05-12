@@ -76,6 +76,20 @@ public class HomeApiController {
 		return hm;
 	}
 	
+	@GetMapping(value = "/intent/confidence")
+	public HashMap<String,Object> getIntentConfidence(SearchParam param) {
+		
+		homeService.getStartEndDateList(param);
+		log.debug(param.toString());
+		
+		return homeService.getIntentConfidence(param);
+	}
+	
+	
+	
+	
+	
+	
 	@GetMapping(value = "/entity/daily")
 	public HashMap<String,Object> getEntityDailyList(SearchParam param) {
 		log.debug(param.toString());
@@ -138,7 +152,7 @@ public class HomeApiController {
 		log.debug(param.toString());
 		
 		//사용자 리스트 조회 서비스 호출
-        List<Conversation> list = homeService.getConversationDataList(param);
+        List<Conversation> list = homeService.getConversationServerSideDataList(param);
         list.forEach(System.out::println);
         
         Integer filteredCount = homeService.getConversationDataFilteredCount(param);

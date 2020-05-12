@@ -48,6 +48,12 @@ public class HomeController {
 		return "conversation";
 	}
 	
+	@RequestMapping("/confidence")
+	public String confidence() {
+		
+		return "confidence";
+	}
+	
 	@RequestMapping("/conversation/serverSide")
 	public String conversationServerSide(Model model) {
 		
